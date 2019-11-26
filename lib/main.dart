@@ -39,7 +39,9 @@ class _MyHomePageState extends State<MyHomePage> {
        users.add(user);
      }
 
-     print("the Number is " + users.length.toString());
+     print("the count is " + users.length.toString());
+
+     return users;
   }
 
   @override
@@ -52,7 +54,33 @@ class _MyHomePageState extends State<MyHomePage> {
          child: FutureBuilder(
            future: _getUsers(),
            builder: (BuildContext context, AsyncSnapshot asyncSnapshot){
-
+             if(asyncSnapshot.data == null){
+               return Container(
+                 child: Center(
+                   child: Text("Loading ........"),
+                 ),
+               );
+             } else {
+               return ListView.builder(
+                 itemCount: asyncSnapshot.data.length,
+                 itemBuilder: (BuildContext context, int index) {
+                   return ListTile(
+                     title: Text(asyncSnapshot.data[index].name),
+                     leading: CircleAvatar(
+                       backgroundImage: NetworkImage(
+                         asyncSnapshot.data[index].picture + asyncSnapshot.data[index].index.toString() + ".jpg"
+                       ),
+                     ),
+                     subtitle: Text(asyncSnapshot.data[index].email) ,
+                     onTap: () {
+                       Navigator.push(context,
+                         new MaterialPageRoute(builder: (context) => DetailPage(asyncSnapshot.data[index]))   
+                       );
+                     },
+                   );
+                 },
+               );
+             }
            },
          ),
       ),
@@ -72,4 +100,27 @@ class User {
 
   User(this.index, this.about, this.name, this.picture, this.company,
       this.email);
+}
+
+
+class DetailPage extends StatelessWidget {
+  
+  final User user;
+
+  DetailPage(this.user);
+  
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(user.name),
+      ),
+      body: Container(
+        child: Center(
+          child: Text(this.user.about),
+        ),
+      ),
+    );
+  }
 }
